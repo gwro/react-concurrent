@@ -1,28 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link
 } from "react-router-dom";
-import './App.css';
+import {One} from "./steps/01Suspense";
+import {Two} from "./steps/02UseTransition";
+import { Three } from './steps/03UseDeferredValue';
 
 function App() {
   return (
     <Router>
-      <div className="App">
-
-        <div>
+      <section className="section">
+        <div className="container">
           <ul>
             <li>
-              <Link to="/one">One</Link>
+              <Link to="/">01 Suspense</Link>
             </li>
             <li>
-              <Link to="/about">About</Link>
+              <Link to="/02">02 useTransition</Link>
             </li>
             <li>
-              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/03">03 useDeferredValue</Link>
             </li>
           </ul>
 
@@ -35,17 +35,21 @@ function App() {
           you have multiple routes, but you want only one
           of them to render at a time
         */}
+        </div>
+        <div className="content">
           <Switch>
             <Route exact path="/">
               <One />
             </Route>
-            <Route path="/about">
+            <Route path="/02">
+              <Two />
             </Route>
-            <Route path="/dashboard">
+            <Route path="/03">
+              <Three />
             </Route>
           </Switch>
         </div>
-      </div>
+      </section>
     </Router>
   );
 }
