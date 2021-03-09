@@ -2,6 +2,7 @@ import React, {
   useState,
   unstable_useTransition,
   Suspense,
+  unstable_SuspenseList as SuspenseList,
   unstable_useDeferredValue
 } from "react";
 
@@ -12,7 +13,7 @@ function getNextId(id: number) {
   return id === 3 ? 0 : id + 1;
 }
 
-const initialResource = fetchProfileData(0, 2000 * Math.random(), 4000);
+const initialResource = fetchProfileData(0, 2000 * Math.random(), 4000, 1000);
 
 export function Four() {
   const [resource, setResource] = useState(
@@ -28,69 +29,77 @@ export function Four() {
         <h2>SuspenseList</h2>
         <ul>
           <li>
-            <b>SuspenseList</b> to komponent pozwalający na wygodne ustalenia kolejności pokazywania załadowanych elementów
+            <b>SuspenseList</b> to komponent pozwalający na wygodne ustalenia kolejności pokazywania załadowanych
+            elementów
           </li>
           <li>
-            prop <b>revealOrder</b> wskazuje, czy Suspense'y będące dziećmi SuspenseList powinny być pokazywane w kolejności: forwards, backwards albo together
-            prop <b>tail</b> kontroluje ile fallbacków możemy widzieć naraz, tail="collapsed" oznacza że będziemy widzieć maksymalnie jeden
+            prop <b>revealOrder</b> wskazuje, czy Suspense'y będące dziećmi SuspenseList powinny być pokazywane w
+            kolejności: forwards, backwards albo together
+          </li>
+          <li>
+            prop <b>tail</b> kontroluje ile fallbacków możemy widzieć naraz, tail="collapsed" oznacza że będziemy
+            widzieć maksymalnie jeden
           </li>
         </ul>
       </div>
 
-      <button
-        disabled={isPending}
-        onClick={() => {
-          startTransition(() => {
-            const nextUserId = getNextId(
-              resource.userId
-            );
-            setResource(
-              fetchProfileData(nextUserId, 2000 * Math.random(), 4000)
-            );
-          });
-        }}
-      >
-        Next
-      </button>
-      {isPending ? " Loading..." : null}
-      <ProfilePage resource={resource} />
+      <Suspense fallback={<h1>Loading...</h1>}>
+        <ProfilePage resource={initialResource}/>
+      </Suspense>
     </>
   );
 }
 
-function ProfilePage({ resource }: {resource: Resource}) {
-  const deferredResource = unstable_useDeferredValue(
-    resource,
-  );
+function ProfilePage({resource}: { resource: Resource }) {
   return (
-    <Suspense
-      fallback={<h1>Loading profile...</h1>}
-    >
-      <ProfileDetails resource={resource} />
+    <SuspenseList revealOrder="forwards">
       <Suspense
-        fallback={<h1>Loading posts...</h1>}
+        fallback={<h2>Fastest - Loading profile details...</h2>}
       >
-        <ProfileTimeline
-          resource={deferredResource}
-          isStale={deferredResource !== resource}
-        />
+        <ProfileDetails resource={resource}/>
       </Suspense>
-    </Suspense>
+
+      <Suspense
+        fallback={<h2>Slowest - Loading posts...</h2>}
+      >
+        <ProfileTimeline resource={resource}/>
+      </Suspense>
+
+      <Suspense
+        fallback={<h2>Loading fun facts...</h2>}
+      >
+        <ProfileTrivia resource={resource}/>
+      </Suspense>
+    </SuspenseList>
   );
 }
 
-function ProfileDetails({ resource }: {resource: Resource}) {
+function ProfileDetails({resource}: { resource: Resource }) {
   const user = resource.user.read();
   return <h1>{user.name}</h1>;
 }
 
-function ProfileTimeline({ isStale, resource }: {isStale: boolean; resource: Resource}) {
+function ProfileTimeline({resource}: { resource: Resource }) {
   const posts = resource.posts.read();
   return (
-    <ul style={{ opacity: isStale ? 0.7 : 1 }}>
+    <ul>
       {posts.map(post => (
         <li key={post.id}>{post.text}</li>
       ))}
     </ul>
+  );
+}
+
+function ProfileTrivia({resource}: { resource: Resource }) {
+  const trivia = resource.trivia.read();
+  return (
+    <>
+      <h2>Fun Facts</h2>
+      <ul>
+        {trivia.map(fact => (
+          <li key={fact.id}>{fact.text}</li>
+        ))}
+      </ul>
+    </>
   );
 }

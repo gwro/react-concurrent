@@ -8,6 +8,7 @@ import {
 import {One} from "./steps/01Suspense";
 import {Two} from "./steps/02UseTransition";
 import { Three } from './steps/03UseDeferredValue';
+import {Four} from "./steps/04SuspenseList";
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
             </li>
             <li>
               <Link to="/03">03 useDeferredValue</Link>
+            </li>
+            <li>
+              <Link to="/04">04 SuspenseList</Link>
             </li>
           </ul>
 
@@ -46,6 +50,9 @@ function App() {
             </Route>
             <Route path="/03">
               <Three />
+            </Route>
+            <Route path="/04">
+              <Four />
             </Route>
           </Switch>
         </div>

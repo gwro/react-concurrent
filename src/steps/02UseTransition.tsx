@@ -18,6 +18,12 @@ export type Resource = {
       text: string;
     }[];
   }
+  trivia: {
+    read(): {
+      id: number;
+      text: string;
+    }[];
+  }
 }
 
 const initialResource = fetchProfileData(0, 1000, 2000)
